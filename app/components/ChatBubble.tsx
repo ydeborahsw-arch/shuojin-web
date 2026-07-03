@@ -30,7 +30,7 @@ export default function ChatBubble({ message, avatarJinjin, avatarYansuo, onRepl
       <img
         src={avatar}
         alt={isSelf ? "今今" : "言铄"}
-        className="w-9 h-9 flex-shrink-0 object-cover self-end"
+        className="w-9 h-9 flex-shrink-0 object-cover mt-1"
         style={{ borderRadius: "4px" }}
       />
       <div className={`flex flex-col max-w-[65%] ${isSelf ? "items-end" : "items-start"}`}>
