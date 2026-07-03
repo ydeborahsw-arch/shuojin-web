@@ -40,12 +40,15 @@ export default function Home() {
   const [showSearch, setShowSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showOB, setShowOB] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [backendMode, setBackendMode] = useState<"cc-sdk" | "api">("cc-sdk");
   const [apiKey, setApiKey] = useState("");
   const [avatarJinjin, setAvatarJinjin] = useState(DEFAULT_AVATAR_JINJIN);
   const [avatarYansuo, setAvatarYansuo] = useState(DEFAULT_AVATAR_YANSUO);
   const [chatBg, setChatBg] = useState("");
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
     if (chatRef.current) {
@@ -57,6 +60,16 @@ export default function Home() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [showMenu]);
+
   const handleSend = (text: string) => {
     const now = new Date();
     const newMsg: Message = {
@@ -65,8 +78,10 @@ export default function Home() {
       text,
       time: now.toTimeString().slice(0, 5),
       date: now.toISOString().slice(0, 10),
+      replyTo: replyTo ? { id: replyTo.id, sender: replyTo.sender, text: replyTo.text } : undefined,
     };
     setMessages((prev) => [...prev, newMsg]);
+    setReplyTo(null);
 
     setTimeout(() => {
       const reply: Message = {
@@ -79,6 +94,10 @@ export default function Home() {
       };
       setMessages((prev) => [...prev, reply]);
     }, 800);
+  };
+
+  const handleReply = (msg: Message) => {
+    setReplyTo(msg);
   };
 
   const handleImageUpload = (file: File) => {
@@ -155,7 +174,12 @@ export default function Home() {
       }
       elements.push(
         <div key={msg.id} id={`msg-${msg.id}`} className="transition-colors duration-500 rounded-lg">
-          <ChatBubble message={msg} avatarJinjin={avatarJinjin} avatarYansuo={avatarYansuo} />
+          <ChatBubble
+            message={msg}
+            avatarJinjin={avatarJinjin}
+            avatarYansuo={avatarYansuo}
+            onReply={handleReply}
+          />
         </div>
       );
     }
@@ -178,37 +202,58 @@ export default function Home() {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="relative" ref={menuRef}>
           <button
-            onClick={() => setShowSearch(true)}
+            onClick={() => setShowMenu(!showMenu)}
             className="p-2 rounded-lg transition-colors hover:bg-white/10"
-            title="搜索"
+            title="更多"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.35-4.35" />
+              <circle cx="12" cy="5" r="1.5" />
+              <circle cx="12" cy="12" r="1.5" />
+              <circle cx="12" cy="19" r="1.5" />
             </svg>
           </button>
-          <button
-            onClick={() => setShowOB(true)}
-            className="p-2 rounded-lg transition-colors hover:bg-white/10"
-            title="Ombre Brain"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
-              <path d="M12 2a8 8 0 018 8c0 3.5-2 6-4 7.5V19a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1.5C6 16 4 13.5 4 10a8 8 0 018-8z" />
-              <path d="M10 22h4" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 rounded-lg transition-colors hover:bg-white/10"
-            title="设置"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-            </svg>
-          </button>
+          {showMenu && (
+            <div
+              className="absolute right-0 top-full mt-1 w-40 rounded-lg py-1 z-50 shadow-lg"
+              style={{ background: "var(--bg-header)", border: "1px solid var(--border-color)" }}
+            >
+              <button
+                onClick={() => { setShowSearch(true); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 flex items-center gap-2"
+                style={{ color: "var(--text-primary)" }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                搜索
+              </button>
+              <button
+                onClick={() => { setShowOB(true); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 flex items-center gap-2"
+                style={{ color: "var(--text-primary)" }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+                  <path d="M12 2a8 8 0 018 8c0 3.5-2 6-4 7.5V19a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1.5C6 16 4 13.5 4 10a8 8 0 018-8z" />
+                  <path d="M10 22h4" />
+                </svg>
+                Ombre Brain
+              </button>
+              <button
+                onClick={() => { setShowSettings(true); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 flex items-center gap-2"
+                style={{ color: "var(--text-primary)" }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+                设置
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -224,7 +269,13 @@ export default function Home() {
       </div>
 
       {/* Input */}
-      <ChatInput onSend={handleSend} onImageUpload={handleImageUpload} onFileUpload={handleFileUpload} />
+      <ChatInput
+        onSend={handleSend}
+        onImageUpload={handleImageUpload}
+        onFileUpload={handleFileUpload}
+        replyTo={replyTo}
+        onCancelReply={() => setReplyTo(null)}
+      />
 
       {/* Overlays */}
       {showSearch && (
