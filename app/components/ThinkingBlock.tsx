@@ -27,7 +27,7 @@ export default function ThinkingBlock({ content }: ThinkingBlockProps) {
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
-        <span style={{ fontSize: "11px" }}>思考过程</span>
+        <span style={{ fontSize: "11px" }}>Thinking</span>
       </div>
       {open && (
         <div
