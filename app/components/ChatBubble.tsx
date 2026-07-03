@@ -39,7 +39,7 @@ export default function ChatBubble({ message, avatarJinjin, avatarYansuo, onRepl
           className={`relative px-3 py-2 text-sm leading-relaxed break-words ${isSelf ? "bubble-tail-right" : "bubble-tail-left"}`}
           style={{
             background: isSelf ? "var(--bg-bubble-self)" : "var(--bg-bubble-other)",
-            borderRadius: isSelf ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
+            borderRadius: isSelf ? "10px 10px 2px 10px" : "10px 10px 10px 2px",
             color: isSelf ? "var(--text-bubble-self)" : "var(--text-bubble-other)",
           }}
           onDoubleClick={() => onReply?.(message)}
@@ -75,11 +75,11 @@ export default function ChatBubble({ message, avatarJinjin, avatarYansuo, onRepl
               />
             </div>
           ) : null}
-          {message.text && <span>{message.text}</span>}
+          <span>{message.text}</span>
+          <span className="inline-block ml-2 align-bottom" style={{ fontSize: "10px", opacity: 0.65, whiteSpace: "nowrap" }}>
+            {message.time}
+          </span>
         </div>
-        <span className="text-xs mt-1 px-1" style={{ color: "var(--text-secondary)", fontSize: "11px" }}>
-          {message.time}
-        </span>
       </div>
     </div>
   );
