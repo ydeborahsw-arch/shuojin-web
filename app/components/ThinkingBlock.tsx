@@ -31,10 +31,8 @@ export default function ThinkingBlock({ content }: ThinkingBlockProps) {
       </div>
       {open && (
         <div
-          className="mt-1 px-2 py-1.5 rounded-lg text-xs whitespace-pre-wrap"
+          className="mt-1 px-2 py-1.5 text-xs whitespace-pre-wrap"
           style={{
-            background: "rgba(94, 170, 222, 0.08)",
-            border: "1px solid rgba(94, 170, 222, 0.15)",
             color: "var(--text-secondary)",
             maxHeight: "200px",
             overflowY: "auto",
